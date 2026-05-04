@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Transafe</string>
+    <string name="search_hint">Where to?</string>
+    <string name="traffic_alert">Traffic ahead in 2 km</string>
+    <string name="speed_alert">You are over the speed limit!</string>
+    <string name="eta_label">ETA: %s</string>
+    <string name="distance_label">Distance: %s</string>
+    <string name="start_trip">Start Trip</string>
+    <string name="end_trip">End Trip</string>
+</resources>
