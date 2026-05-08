@@ -24,11 +24,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elijah.transafe.R
 import com.elijah.transafe.ui.theme.TransafeTheme
+import com.elijah.transafe.ui.theme.OrangeMain
+import com.elijah.transafe.ui.theme.AlertRed
+import com.elijah.transafe.ui.theme.SuccessGreen
 
 import androidx.navigation.NavHostController
 import com.elijah.transafe.navigation.ROUTE_PROFILE
@@ -42,15 +46,15 @@ enum class Severity { HIGH, MEDIUM }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Homescreen(navController: NavHostController? = null) {
-    var isInsideBlackspot by remember { mutableStateOf(false) } // Simulated GPS/Hazard detection
+    var isInsideBlackspot by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     var showReportSheet by remember { mutableStateOf(false) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        // 1. Map View (Placeholder)
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        // 1. Map View (Placeholder with subtle overlay)
         MapPlaceholder(modifier = Modifier.fillMaxSize())
 
-        // Safety "Blackspot" Detection Glow (Professional UI Warning Overlay)
+        // Safety "Blackspot" Detection Glow
         AnimatedVisibility(
             visible = isInsideBlackspot,
             enter = fadeIn(),
@@ -61,17 +65,18 @@ fun Homescreen(navController: NavHostController? = null) {
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            listOf(Color.Red.copy(alpha = 0.25f), Color.Transparent, Color.Transparent)
+                            listOf(AlertRed.copy(alpha = 0.3f), Color.Transparent, Color.Transparent)
                         )
                     )
             )
         }
 
-        // 2. Search Bar & Contextual Alert (Top)
+        // 2. Top Navigation & Alerts
         Column(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 48.dp, start = 16.dp, end = 16.dp),
+                .statusBarsPadding()
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             SearchBar(
@@ -79,10 +84,8 @@ fun Homescreen(navController: NavHostController? = null) {
                 onDashboardClick = { navController?.navigate(ROUTE_DASHBOARD) }
             )
 
-            // Quick Access "Safety Hub" Button
             SafetyHubButton(onClick = { navController?.navigate(ROUTE_DASHBOARD) })
             
-            // Smart Alert Banner: contextual to current road conditions in Kenya
             AlertBanner(
                 message = if (isInsideBlackspot) "DANGER: Entering Accident Blackspot" else "Heavy traffic reported at Museum Hill",
                 timeAgo = if (isInsideBlackspot) "Active Now" else "3 mins ago",
@@ -90,34 +93,34 @@ fun Homescreen(navController: NavHostController? = null) {
             )
         }
 
-        // 3. Floating Action Buttons (Right side)
+        // 3. Floating Action Buttons
         Column(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .padding(end = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Mock Toggle for Blackspot Demo (Professional Small FAB)
             SmallFloatingActionButton(
                 onClick = { isInsideBlackspot = !isInsideBlackspot },
-                containerColor = if (isInsideBlackspot) Color.Red else Color.White,
-                contentColor = if (isInsideBlackspot) Color.White else Color.Black,
+                containerColor = if (isInsideBlackspot) AlertRed else MaterialTheme.colorScheme.surface,
+                contentColor = if (isInsideBlackspot) Color.White else MaterialTheme.colorScheme.onSurface,
                 shape = CircleShape,
+                elevation = FloatingActionButtonDefaults.elevation(4.dp)
             ) {
                 Icon(
-                    imageVector = if (isInsideBlackspot) Icons.Default.Warning else Icons.Default.LocationOn, 
-                    contentDescription = "Toggle Blackspot Detection"
+                    imageVector = if (isInsideBlackspot) Icons.Default.Warning else Icons.Default.GpsFixed, 
+                    contentDescription = "Toggle Detection"
                 )
             }
 
             FloatingActionButton(
                 onClick = { showReportSheet = true },
-                containerColor = Color.Red,
+                containerColor = AlertRed,
                 contentColor = Color.White,
                 shape = CircleShape,
                 elevation = FloatingActionButtonDefaults.elevation(8.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Report Incident", modifier = Modifier.size(32.dp))
+                Icon(Icons.Default.Add, contentDescription = "Report", modifier = Modifier.size(32.dp))
             }
         }
 
@@ -125,19 +128,20 @@ fun Homescreen(navController: NavHostController? = null) {
         BottomPanel(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 24.dp, start = 16.dp, end = 16.dp),
+                .navigationBarsPadding()
+                .padding(bottom = 16.dp, start = 16.dp, end = 16.dp),
             isTripStarted = false,
             onTripToggle = { 
                 navController?.navigate(ROUTE_TRIP_ACTIVE)
             }
         )
 
-        // 5. Enhanced Report Bottom Sheet (Kenyan Road Hazards)
+        // 5. Report Bottom Sheet
         if (showReportSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showReportSheet = false },
                 sheetState = sheetState,
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
                 dragHandle = { BottomSheetDefaults.DragHandle() }
             ) {
                 IncidentReportGrid(onReportSelected = { incidentType ->
@@ -151,32 +155,34 @@ fun Homescreen(navController: NavHostController? = null) {
 
 @Composable
 fun MapPlaceholder(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.background(Color(0xFFF0F0F0))) {
+    Box(modifier = modifier) {
         Image(
             painter = painterResource(id = R.drawable.traffic),
-            contentDescription = "Map Background",
+            contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
-            alpha = 0.5f
+            alpha = 0.4f
         )
         
-        // Simulated navigation route line
+        // Navigation route visual
         Box(
             modifier = Modifier
-                .size(width = 6.dp, height = 400.dp)
-                .background(Color(0xFF2196F3).copy(alpha = 0.7f), shape = RoundedCornerShape(3.dp))
+                .width(8.dp)
+                .fillMaxHeight(0.6f)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), shape = RoundedCornerShape(4.dp))
                 .align(Alignment.Center)
         )
 
-        // Simulated current location marker
+        // Location marker
         Surface(
-            modifier = Modifier.size(32.dp).align(Alignment.Center),
+            modifier = Modifier.size(36.dp).align(Alignment.Center),
             shape = CircleShape,
             color = Color.White,
-            shadowElevation = 6.dp
+            shadowElevation = 8.dp
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Box(modifier = Modifier.size(20.dp).background(Color(0xFF2196F3), CircleShape))
+                Box(modifier = Modifier.size(20.dp).background(MaterialTheme.colorScheme.primary, CircleShape))
+                Box(modifier = Modifier.size(12.dp).background(Color.White, CircleShape))
             }
         }
     }
@@ -189,36 +195,35 @@ fun SearchBar(
     onDashboardClick: () -> Unit = {}
 ) {
     ElevatedCard(
-        modifier = modifier.fillMaxWidth().height(56.dp),
-        shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.elevatedCardColors(containerColor = Color.White),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
+        modifier = modifier.fillMaxWidth().height(60.dp),
+        shape = RoundedCornerShape(30.dp),
+        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 8.dp).fillMaxSize(),
+            modifier = Modifier.padding(horizontal = 12.dp).fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onProfileClick) {
                 Icon(
                     Icons.Default.AccountCircle, 
                     contentDescription = "Profile", 
-                    tint = Color.Gray,
-                    modifier = Modifier.size(28.dp)
+                    tint = OrangeMain,
+                    modifier = Modifier.size(32.dp)
                 )
             }
-            Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "Where to? (e.g. Westlands)",
-                color = Color.Gray,
-                modifier = Modifier.weight(1f),
-                fontSize = 15.sp
+                text = "Search destination...",
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                modifier = Modifier.weight(1f).padding(start = 8.dp),
+                fontSize = 16.sp
             )
             IconButton(onClick = onDashboardClick) {
-                Icon(Icons.Default.Shield, contentDescription = "Safety Hub", tint = Color(0xFFF57C00))
+                Icon(Icons.Default.Shield, contentDescription = "Safety", tint = OrangeMain)
             }
-            VerticalDivider(modifier = Modifier.height(24.dp).padding(horizontal = 4.dp), color = Color.LightGray)
+            VerticalDivider(modifier = Modifier.height(24.dp).padding(horizontal = 8.dp))
             IconButton(onClick = { }) {
-                Icon(Icons.Default.Mic, contentDescription = "Voice Search", tint = Color(0xFF2196F3))
+                Icon(Icons.Default.Mic, contentDescription = "Voice", tint = MaterialTheme.colorScheme.primary)
             }
         }
     }
@@ -229,62 +234,61 @@ fun SafetyHubButton(onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        color = Color(0xFFF57C00).copy(alpha = 0.1f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF57C00).copy(alpha = 0.2f))
+        shape = RoundedCornerShape(16.dp),
+        color = OrangeMain.copy(alpha = 0.15f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, OrangeMain.copy(alpha = 0.3f))
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.AutoGraph, contentDescription = null, tint = Color(0xFFF57C00))
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
+            Icon(Icons.Default.AutoGraph, contentDescription = null, tint = OrangeMain)
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "Safety & Education Hub",
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    color = Color(0xFFF57C00)
+                    fontSize = 15.sp,
+                    color = OrangeMain
                 )
                 Text(
-                    text = "Learn road safety measures and tips",
-                    fontSize = 11.sp,
-                    color = Color(0xFFF57C00).copy(alpha = 0.8f)
+                    text = "Daily tips & traffic awareness",
+                    fontSize = 12.sp,
+                    color = OrangeMain.copy(alpha = 0.8f)
                 )
             }
-            Spacer(modifier = Modifier.weight(1f))
-            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color(0xFFF57C00))
+            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = OrangeMain)
         }
     }
 }
 
 @Composable
 fun AlertBanner(message: String, timeAgo: String, severity: Severity) {
-    val containerColor = if (severity == Severity.HIGH) Color(0xFFC62828) else Color(0xFFF57C00)
+    val containerColor = if (severity == Severity.HIGH) AlertRed else OrangeMain
     
-    ElevatedCard(
+    Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.elevatedCardColors(containerColor = containerColor),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Warning, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
-            Spacer(modifier = Modifier.width(12.dp))
+            Icon(Icons.Default.Warning, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
+            Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(
                     text = message,
                     color = Color.White,
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "Reported $timeAgo",
                     color = Color.White.copy(alpha = 0.8f),
-                    fontSize = 11.sp
+                    fontSize = 12.sp
                 )
             }
         }
@@ -293,27 +297,25 @@ fun AlertBanner(message: String, timeAgo: String, severity: Severity) {
 
 @Composable
 fun IncidentReportGrid(onReportSelected: (String) -> Unit) {
-    // Structured data for Kenyan-specific reports
-    val items: List<Triple<String, Color, ImageVector>> = listOf(
-        Triple("Accident", Color.Red, Icons.Default.Warning),
-        Triple("Heavy Traffic", Color(0xFFFF9800), Icons.Default.Info),
-        Triple("Police Check", Color.Blue, Icons.Default.Notifications),
-        Triple("Pothole", Color(0xFF795548), Icons.Default.Build),
-        Triple("Stalled Bus", Color.Gray, Icons.Default.Info),
-        Triple("Roadwork", Color(0xFFFBC02D), Icons.Default.Build)
+    val items = listOf(
+        Triple("Accident", AlertRed, Icons.Default.Warning),
+        Triple("Traffic", OrangeMain, Icons.Default.Info),
+        Triple("Police", Color(0xFF3B82F6), Icons.Default.Notifications),
+        Triple("Hazard", Color(0xFF795548), Icons.Default.Build),
+        Triple("Stalled", Color.Gray, Icons.Default.BusAlert),
+        Triple("Roadwork", Color(0xFFFBC02D), Icons.Default.Construction)
     )
 
-    Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp).fillMaxWidth()) {
+    Column(modifier = Modifier.padding(24.dp).fillMaxWidth()) {
         Text(
             text = "Report Incident",
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 20.sp,
-            color = Color.Black
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Help other drivers by sharing what you see",
-            color = Color.Gray,
-            fontSize = 13.sp
+            text = "Help others stay safe on the road",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodyMedium
         )
         
         Spacer(modifier = Modifier.height(24.dp))
@@ -322,39 +324,31 @@ fun IncidentReportGrid(onReportSelected: (String) -> Unit) {
             columns = GridCells.Fixed(3),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
-            modifier = Modifier.height(220.dp)
+            modifier = Modifier.height(240.dp)
         ) {
-            items(items) { item ->
-                val (label, color, icon) = item
+            items(items) { (label, color, icon) ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.clickable { onReportSelected(label) }
                 ) {
                     Surface(
-                        modifier = Modifier.size(56.dp),
+                        modifier = Modifier.size(64.dp),
                         shape = CircleShape,
-                        color = color.copy(alpha = 0.12f)
+                        color = color.copy(alpha = 0.15f)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = icon,
-                                contentDescription = label,
-                                tint = color,
-                                modifier = Modifier.size(26.dp)
-                            )
+                            Icon(icon, contentDescription = label, tint = color, modifier = Modifier.size(28.dp))
                         }
                     }
                     Text(
                         text = label, 
-                        fontSize = 11.sp, 
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(top = 8.dp),
-                        maxLines = 1
+                        fontSize = 12.sp, 
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 8.dp)
                     )
                 }
             }
         }
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -366,46 +360,52 @@ fun BottomPanel(
 ) {
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.elevatedCardColors(containerColor = Color.White),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 10.dp)
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 12.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(modifier = Modifier.size(8.dp).background(Color(0xFF4CAF50), CircleShape))
+                        Box(modifier = Modifier.size(10.dp).background(SuccessGreen, CircleShape))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "ETA: 25 min",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color.Black
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                     Text(
                         text = "12.4 km • via Thika Superhighway",
-                        fontSize = 13.sp,
-                        color = Color.Gray
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
                 
                 Button(
                     onClick = onTripToggle,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isTripStarted) Color(0xFFC62828) else Color(0xFF2E7D32)
+                        containerColor = if (isTripStarted) AlertRed else SuccessGreen
                     ),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.height(48.dp)
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.height(56.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp)
                 ) {
                     Text(
                         text = if (isTripStarted) "END TRIP" else "START TRIP",
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 0.5.sp
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        maxLines = 1,
+                        softWrap = false
                     )
                 }
             }

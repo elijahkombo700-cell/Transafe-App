@@ -1,8 +1,17 @@
 package com.elijah.transafe.models
 
-data class SafetyTip(
-    val id: String = "",
-    val title: String = "",
-    val description: String = "",
-    val category: String = "" // e.g., "Speeding", "Weather", "Maintenance"
-)
+class SafetyTip{
+    var id: String = ""
+    var title: String = ""
+    var description: String = ""
+    var category: String = ""
+
+constructor(id: String, title: String, description: String, category: String) {
+    this.id = id
+    this.title = title
+    this.description = description
+    this.category = category
+
+}
+    constructor()
+}

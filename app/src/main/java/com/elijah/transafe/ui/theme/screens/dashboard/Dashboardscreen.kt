@@ -28,22 +28,29 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.elijah.transafe.R
+import com.elijah.transafe.ui.theme.AlertRed
+import com.elijah.transafe.ui.theme.NewBackground
 import com.elijah.transafe.ui.theme.OrangeMain
+import com.elijah.transafe.ui.theme.Slate100
+import com.elijah.transafe.ui.theme.Slate500
+import com.elijah.transafe.ui.theme.Slate700
+import com.elijah.transafe.ui.theme.SuccessGreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dashboardscreen(navController: NavHostController) {
     Scaffold(
+        containerColor = Slate100,
         topBar = {
             TopAppBar(
-                title = { Text("Safety Dashboard", fontWeight = FontWeight.Bold) },
+                title = { Text("Safety Dashboard", fontWeight = FontWeight.Bold, color = OrangeMain) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = OrangeMain)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = NewBackground
                 )
             )
         }
@@ -52,21 +59,22 @@ fun Dashboardscreen(navController: NavHostController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
-            contentPadding = PaddingValues(bottom = 24.dp)
+            contentPadding = PaddingValues(bottom = 32.dp)
         ) {
             // Hero Section: Awareness Campaign
             item {
+                Spacer(modifier = Modifier.height(8.dp))
                 SafetyHeroSection()
             }
 
             // Quick Tips: Horizontal Scroll
             item {
                 SectionHeader("Daily Safety Tips", "See all")
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(safetyTips) { tip ->
                         SafetyTipCard(tip)
@@ -77,7 +85,6 @@ fun Dashboardscreen(navController: NavHostController) {
             // Educational Modules: List
             item {
                 SectionHeader("Educational Modules", null)
-                Spacer(modifier = Modifier.height(12.dp))
             }
 
             items(educationModules) { module ->
@@ -94,12 +101,12 @@ fun Dashboardscreen(navController: NavHostController) {
 
 @Composable
 fun SafetyHeroSection() {
-    Card(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .height(180.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .height(200.dp),
+        shape = RoundedCornerShape(28.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
     ) {
         Box {
             Image(
@@ -111,24 +118,25 @@ fun SafetyHeroSection() {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.4f))
+                    .background(Color.Black.copy(alpha = 0.45f))
             )
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(20.dp),
+                    .padding(24.dp),
                 verticalArrangement = Arrangement.Bottom
             ) {
                 Text(
                     text = "Arrive Alive",
                     color = Color.White,
-                    fontSize = 24.sp,
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Safe driving saves lives. Join our mission for 0 road fatalities.",
-                    color = Color.White.copy(alpha = 0.8f),
-                    fontSize = 14.sp
+                    color = Color.White.copy(alpha = 0.9f),
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -142,12 +150,18 @@ fun SectionHeader(title: String, actionText: String?) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text(
+            text = title, 
+            style = MaterialTheme.typography.titleLarge, 
+            fontWeight = FontWeight.Bold,
+            color = Slate700
+        )
         if (actionText != null) {
             Text(
                 text = actionText,
                 color = OrangeMain,
                 fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.clickable { }
             )
         }
@@ -156,39 +170,60 @@ fun SectionHeader(title: String, actionText: String?) {
 
 @Composable
 fun SafetyTipCard(tip: SafetyTip) {
-    Card(
-        modifier = Modifier.width(240.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-        shape = RoundedCornerShape(12.dp)
+    ElevatedCard(
+        modifier = Modifier.width(260.dp),
+        colors = CardDefaults.elevatedCardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(24.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Icon(tip.icon, contentDescription = null, tint = OrangeMain)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = tip.title, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = tip.description, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Column(modifier = Modifier.padding(20.dp)) {
+            Surface(
+                color = OrangeMain.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(
+                    tip.icon, 
+                    contentDescription = null, 
+                    tint = OrangeMain,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = tip.title, 
+                fontWeight = FontWeight.Bold, 
+                fontSize = 17.sp,
+                color = Slate700
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = tip.description, 
+                style = MaterialTheme.typography.bodySmall, 
+                color = Slate500,
+                lineHeight = 18.sp
+            )
         }
     }
 }
 
 @Composable
 fun EducationModuleItem(module: EducationModule) {
-    Card(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            .padding(vertical = 6.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.elevatedCardColors(containerColor = Color.White),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .size(52.dp)
+                    .clip(RoundedCornerShape(16.dp))
                     .background(OrangeMain.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
@@ -196,28 +231,48 @@ fun EducationModuleItem(module: EducationModule) {
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = module.title, fontWeight = FontWeight.Bold)
-                Text(text = module.duration, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                Text(
+                    text = module.title, 
+                    fontWeight = FontWeight.Bold,
+                    color = Slate700,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    text = module.duration, 
+                    style = MaterialTheme.typography.bodySmall, 
+                    color = Slate500
+                )
             }
-            CircularProgressIndicator(
-                progress = { module.progress },
-                modifier = Modifier.size(24.dp),
-                color = OrangeMain,
-                strokeWidth = 3.dp,
-                trackColor = Color.LightGray.copy(alpha = 0.3f),
-            )
+            Box(contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(
+                    progress = { module.progress },
+                    modifier = Modifier.size(32.dp),
+                    color = OrangeMain,
+                    strokeWidth = 4.dp,
+                    trackColor = Slate100,
+                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
+                )
+                if (module.progress >= 1f) {
+                    Icon(Icons.Default.Check, contentDescription = null, tint = OrangeMain, modifier = Modifier.size(16.dp))
+                }
+            }
         }
     }
 }
 
 @Composable
 fun EmergencySection() {
-    Column {
-        Text("Emergency Response", fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(12.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            EmergencyButton(Icons.Default.Phone, "Call Police", Color(0xFFE53935), Modifier.weight(1f))
-            EmergencyButton(Icons.Default.LocalHospital, "Ambulance", Color(0xFF43A047), Modifier.weight(1f))
+    Column(modifier = Modifier.padding(top = 8.dp)) {
+        Text(
+            "Emergency Response", 
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleLarge,
+            color = Slate700
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            EmergencyButton(Icons.Default.Phone, "Call Police", AlertRed, Modifier.weight(1f))
+            EmergencyButton(Icons.Default.LocalHospital, "Ambulance", SuccessGreen, Modifier.weight(1f))
         }
     }
 }
@@ -226,13 +281,14 @@ fun EmergencySection() {
 fun EmergencyButton(icon: ImageVector, label: String, color: Color, modifier: Modifier) {
     Button(
         onClick = { },
-        modifier = modifier.height(56.dp),
+        modifier = modifier.height(60.dp),
         colors = ButtonDefaults.buttonColors(containerColor = color),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(18.dp),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
     ) {
-        Icon(icon, contentDescription = null)
+        Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
         Spacer(modifier = Modifier.width(8.dp))
-        Text(label, fontWeight = FontWeight.Bold)
+        Text(label, fontWeight = FontWeight.Bold, fontSize = 14.sp)
     }
 }
 

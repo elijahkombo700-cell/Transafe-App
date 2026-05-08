@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "623097547789",
+    "project_id": "my-awesome-project-97654",
+    "storage_bucket": "my-awesome-project-97654.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:623097547789:android:7caab2f3bd7c5c41631944",
+        "android_client_info": {
+          "package_name": "com.elijah.transafe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB95nWQFw-Hk4UshzKwAFTFH2tnrcNM2CQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
