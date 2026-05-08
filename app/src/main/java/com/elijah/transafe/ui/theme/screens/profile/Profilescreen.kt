@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.elijah.transafe.R
+import com.elijah.transafe.data.AuthViewModel
 import com.elijah.transafe.data.UserViewModel
 import com.elijah.transafe.ui.theme.NewBackground
 import com.elijah.transafe.ui.theme.OrangeMain
@@ -43,6 +45,7 @@ import com.elijah.transafe.ui.theme.Slate700
 fun Profilescreen(navController: NavHostController) {
     val context = LocalContext.current
     val userViewModel = remember { UserViewModel(navController, context) }
+    val authViewModel = remember { AuthViewModel(navController, context) }
     
     // State for user details
     var name by remember { mutableStateOf("John Doe") }
@@ -64,6 +67,11 @@ fun Profilescreen(navController: NavHostController) {
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = OrangeMain)
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { authViewModel.logout() }) {
+                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout", tint = OrangeMain)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

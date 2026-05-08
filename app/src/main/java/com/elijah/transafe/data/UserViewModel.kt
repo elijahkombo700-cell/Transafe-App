@@ -32,9 +32,6 @@ class UserViewModel(var navController: NavHostController, var context: Context) 
         if (imageUri != null) {
             uploadProfileImage(userId, name, plateNumber, imageUri)
         } else {
-            // If no image is selected, we keep the existing image or set empty if new
-            // For simplicity, we'll just save with empty string or existing if we had fetched it.
-            // In a real app, you might fetch current user data first.
             saveUserData(userId, name, plateNumber, "")
         }
     }
