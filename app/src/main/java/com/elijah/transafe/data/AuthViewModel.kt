@@ -48,6 +48,16 @@ class AuthViewModel(var navController: NavHostController, var context: Context) 
 
         auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                // Save login info to database
+                val userId = auth.currentUser?.uid ?: ""
+                val loginData = mapOf(
+                    "email" to email,
+                    "lastLogin" to System.currentTimeMillis()
+                )
+
+                database.getReference("Users").child(userId).child("loginHistory")
+                    .push().setValue(loginData)
+
                 Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
                 navController.navigate(ROUTE_HOME) {
                     popUpTo(ROUTE_LOGIN) { inclusive = true }
